@@ -36,6 +36,10 @@ dictNucl = {    "e_pl_srf": 3.8e-16,
 		"e_air_sh_ad" : 1.8e-14,
 		"e_inh_ad" : 7.4e-09,
 		"e_ing_in" : 1.8e-07,
+		"eing_inf" : 1.8e-07,
+		"eing_ad"  : 2.2e-08,
+		"delta_eff": 6.4e+05,
+		"Fcons"    : 9.2e-01,
 		}	
 
 def intWeat(t):
@@ -151,22 +155,34 @@ def calc_e_ind_ing(t):
 	e_ind_ing = e_ing_in*TI_inf
 	return e_ind_ing
 
-	
+
+
 def calc_e_ing_pre(t):
-	f1 = 
-	Fmilk = 
-	Ucow = 
-	Fcow_feed = 
-	Tfeed_cow_milk = 
-	max_milk = max()
-	max_lv = max()
-	f2 = 
-	Flv = 
-	delta_eff = 
-	Fcons = 
-	e_ing_pre = calc_e_gr_sh(t)+calc_e_air_sh(t)+calc_e_inh_res(t)+calc_e_ind_ing(t)
+	f1 = 3
+	Fmilk = 0.5
+	Ucow = 1.9e-04
+	Fcow_feed = 0.7
+	Tfeed_cow_milk = 4.7e+02
+	
+	Qmilk_inf = 3.8e-06
+	eing_inf = dictNucl["eing_inf"]
+	Qmilk_ad = 3.3e-06
+	eing_ad = dictNucl["eing_ad"]
+	max_milk = max(Qmilk_inf*eing_inf, Qmilk_ad*eing_ad)
+	
+	Qlv_inf = 6.3e-07
+	eing_inf = dictNucl["eing_inf"]
+	Qlv_ad = 1.9e-06
+	eing_ad = dictNucl["eing_ad"]
+	max_lv = max(Qlv_inf*eing_inf, Qlv_ad*eing_ad)
+	
+	f2 = 0.3
+	Flv = 0.5
+	delta_eff = dictNucl["delta_eff"]
+	Fcons = dictNucl["Fcons"]
+	e_ing_pre = f1*Fmilk*Ucow*Fcow_feed*Tfeed_cow_milk*max_milk*max_lv*f2*Flv*delta_eff*Fcons
 	#print "time", t
-	return Egr
+	return e_ing_pre
 
 def createGraph(x, y, name, log):
 	fig = plt.figure()
