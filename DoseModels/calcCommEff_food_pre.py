@@ -26,9 +26,6 @@ rcParams['font.family'] = 'fantasy'
 rcParams['font.fantasy'] = 'Arial'
 
 
-
-def integrand(x, a, b):
-	return a*x**2 + b
 	
 	
 dictNucl = {    "e_pl_srf": 3.8e-16,
@@ -41,119 +38,6 @@ dictNucl = {    "e_pl_srf": 3.8e-16,
 		"delta_eff": 6.4e+05,
 		"Fcons"    : 9.2e-01,
 		}	
-
-def intWeat(t):
-	l = dictNucl["l"]
-	b1 = 3.59e-08
-	b2 = 2.37e-10
-	Wg = 0.63*exp(-b1*t)+0.37*exp(-b2*t)
-	return Wg*exp(-l*t)
-	
-def intTgr_air(t):
-	l = dictNucl["l"]
-	T =  1e-05
-	t0 = 86400
-	if 0<=t<=t0:
-		#print "aaaaaaaaaa"
-		Tgr_air = T
-	else:
-		Tgr_air = T*t0/t+1e-09
-	return Tgr_air*exp(-l*t)
-	
-def intTgr_gi(t):
-	l = dictNucl["l"]
-	Qsoil = 1.2e-09
-	pdep = 1600.0
-	d_ind = 0.001
-	Fsolid = 1
-	T = Qsoil/(pdep*d_ind*Fsolid)
-	t0 = 86400
-	#print "T for infant", T
-	if 0<=t<=t0:
-		#print "aaaaaaaaaa"
-		Tgr_air = T
-	else:
-		Tgr_air = T*t0/t
-	return Tgr_air*exp(-l*t)
-	
-
-#def calcWI(t):
-#	#I = quad(integrand, 0, 1, args=(a,b))
-#	x = range(0, 8640001, 600)
-#	I7d = quad(intWeat, 0, 604800, args = (l))
-#	I1y = quad(intWeat, 0, 31536000, args = (l))
-#	WI = {"7d":I7d[0], "1a":I1y[0]}
-#	b1 = 3.59e-08
-#	b2 = 2.37e-10
-#	x = range(0, 30240000, 600)
-#	Wg = [0.63*exp(-b1*t)+0.37*exp(-b2*t) for t in x]
-#	createGraph(x, Wg, 'Wg', False)
-#	return WI
-
-def calcWI(t):
-	#I = quad(integrand, 0, 1, args=(a,b))
-	l = dictNucl["l"]
-	I = quad(intWeat, 0, t)
-	return I[0]
-
-def calcTI(t):
-	l = dictNucl["l"]
-	TI = quad(intTgr_air, 0, t)
-	return TI[0]
-
-def calcTI2(t):
-	l = dictNucl["l"]
-	TI = quad(intTgr_gi, 0, t)
-	return TI[0]
-
-#def calcTI(l):
-#	TI = quad(intRes, 0, 604800, args = (l))
-#	print TI
-#	x = range(0, 8640001, 600)
-#	TI = [quad(intRes, 0, time, args = (l))[0] for time in x]
-#	createGraph(x, TI, 'TI', True)
-#	
-#
-#	x = range(0, 8640001, 600)
-#	y = [calcT(time) for time in x]
-#	createGraph(x, y, 'T', True)
-#	return TI
-
-
-def calc_e_gr_sh(t):
-	CorFgrd = 0.7
-	SFe = 1.4
-	WI = calcWI(t)
-	#print "WI", WI
-	Fsf = 0.4
-	Fof = 0.6
-	e_gr_sh = dictNucl["e_pl_srf"]*CorFgrd*SFe*WI*(Fsf*Fof+(1-Fof))
-	return e_gr_sh
-	
-	
-def calc_e_air_sh(t):
-	e_air_sh_ad = dictNucl["e_air_sh_ad"]
-	TI = calcTI(t)
-	#print "TI", TI
-	SFe = 1.4
-	e_air_sh = e_air_sh_ad*TI*SFe
-	return e_air_sh
-	
-def calc_e_inh_res(t):
-	e_inh_ad = dictNucl["e_inh_ad"]
-	TI = calcTI(t)
-	#print "TI", TI
-	Frf = 1
-	Qair = 3.3e-04
-	e_inh_res = e_inh_ad*TI*Frf*Qair
-	return e_inh_res
-
-def calc_e_ind_ing(t):
-	TI_inf = calcTI2(t)
-	#print "TI_inf", TI_inf
-	e_ing_in = dictNucl["e_ing_in"]
-	e_ind_ing = e_ing_in*TI_inf
-	return e_ind_ing
 
 
 
@@ -180,7 +64,7 @@ def calc_e_ing_pre(t):
 	Flv = 0.5
 	delta_eff = dictNucl["delta_eff"]
 	Fcons = dictNucl["Fcons"]
-	e_ing_pre = f1*Fmilk*Ucow*Fcow_feed*Tfeed_cow_milk*max_milk*max_lv*f2*Flv*delta_eff*Fcons
+	e_ing_pre = (f1*Fmilk*Ucow*Fcow_feed*Tfeed_cow_milk*max_milk+max_lv*f2*Flv)*delta_eff*Fcons
 	#print "time", t
 	return e_ing_pre
 
