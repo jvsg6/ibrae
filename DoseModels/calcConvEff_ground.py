@@ -4,7 +4,7 @@ import sys
 import os
 from math import exp
 
-
+import sqlite3
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
 from scipy.integrate import quad
@@ -15,7 +15,7 @@ def save(name='', fmt='png'):
 	iPath = './pictures/{}'.format(fmt)
 	try:
 		os.makedirs(iPath)
-	except WindowsError as err:
+	except:
 		print "Folder exist"
 	os.chdir(iPath)
 	plt.savefig('{}.{}'.format(name, fmt), fmt='png')
@@ -31,11 +31,11 @@ def integrand(x, a, b):
 	return a*x**2 + b
 	
 	
-dictNucl = {    "e_pl_srf": 3.8e-16,
+dictNucl = {    "e_plane_srf_ad": 3.8e-16,
 		"l"       : 1.0e-06,
 		"e_air_sh_ad" : 1.8e-14,
 		"e_inh_ad" : 7.4e-09,
-		"e_ing_in" : 1.8e-07,
+		"e_ing_inf" : 1.8e-07,
 		}	
 
 def intWeat(t):
@@ -73,19 +73,6 @@ def intTgr_gi(t):
 	return Tgr_air*exp(-l*t)
 	
 
-#def calcWI(t):
-#	#I = quad(integrand, 0, 1, args=(a,b))
-#	x = range(0, 8640001, 600)
-#	I7d = quad(intWeat, 0, 604800, args = (l))
-#	I1y = quad(intWeat, 0, 31536000, args = (l))
-#	WI = {"7d":I7d[0], "1a":I1y[0]}
-#	b1 = 3.59e-08
-#	b2 = 2.37e-10
-#	x = range(0, 30240000, 600)
-#	Wg = [0.63*exp(-b1*t)+0.37*exp(-b2*t) for t in x]
-#	createGraph(x, Wg, 'Wg', False)
-#	return WI
-
 def calcWI(t):
 	#I = quad(integrand, 0, 1, args=(a,b))
 	l = dictNucl["l"]
@@ -102,20 +89,6 @@ def calcTI2(t):
 	TI = quad(intTgr_gi, 0, t)
 	return TI[0]
 
-#def calcTI(l):
-#	TI = quad(intRes, 0, 604800, args = (l))
-#	print TI
-#	x = range(0, 8640001, 600)
-#	TI = [quad(intRes, 0, time, args = (l))[0] for time in x]
-#	createGraph(x, TI, 'TI', True)
-#	
-#
-#	x = range(0, 8640001, 600)
-#	y = [calcT(time) for time in x]
-#	createGraph(x, y, 'T', True)
-#	return TI
-
-
 def calc_e_gr_sh(t):
 	CorFgrd = 0.7
 	SFe = 1.4
@@ -123,7 +96,7 @@ def calc_e_gr_sh(t):
 	#print "WI", WI
 	Fsf = 0.4
 	Fof = 0.6
-	e_gr_sh = dictNucl["e_pl_srf"]*CorFgrd*SFe*WI*(Fsf*Fof+(1-Fof))
+	e_gr_sh = dictNucl["e_plane_srf_ad"]*CorFgrd*SFe*WI*(Fsf*Fof+(1-Fof))
 	return e_gr_sh
 	
 	
@@ -147,7 +120,7 @@ def calc_e_inh_res(t):
 def calc_e_ind_ing(t):
 	TI_inf = calcTI2(t)
 	#print "TI_inf", TI_inf
-	e_ing_in = dictNucl["e_ing_in"]
+	e_ing_in = dictNucl["e_ing_inf"]
 	e_ind_ing = e_ing_in*TI_inf
 	return e_ind_ing
 
@@ -170,14 +143,45 @@ def createGraph(x, y, name, log):
 	
 
 def main():
+	global dictNucl
+	print "old I"
 	print 
 	print calcEgrd(604800)
 	print
 	print calcEgrd(31536000)
-	x = range(0,31536000, 6000)
-	y = [calcEgrd(time) for time in x]
-	createGraph(x, y, "FromDayToYearLog", True)
-	createGraph(x, y, "FromDayToYear", False)
+	print "--------------------------------------------"
+	#Устанавливаем соединение с базой данных
+	conn = sqlite3.connect('./db/new_db.sqlite')
+	
+	# Создаем курсор - это специальный объект который делает запросы и получает их результаты
+	cursor = conn.cursor()
+	for i in range(1,6):
+		cursor.execute("SELECT e_plane_srf_ad FROM Table_24_Conversion_fraction_total_eff_dose_ground_scenario WHERE id={0}".format(i))
+		dictNucl["e_plane_srf_ad"] = cursor.fetchall()[0][0]
+		cursor.execute("SELECT e_air_sh_ad FROM Table_24_Conversion_fraction_total_eff_dose_ground_scenario WHERE id={0}".format(i))
+		dictNucl["e_air_sh_ad"] = cursor.fetchall()[0][0]
+		cursor.execute("SELECT e_inh_ad FROM Table_24_Conversion_fraction_total_eff_dose_ground_scenario WHERE id={0}".format(i))
+		dictNucl["e_inh_ad"] = cursor.fetchall()[0][0]
+		cursor.execute("SELECT e_ing_inf FROM Table_24_Conversion_fraction_total_eff_dose_ground_scenario WHERE id={0}".format(i))
+		dictNucl["e_ing_inf"] = cursor.fetchall()[0][0]
+		cursor.execute("SELECT Decay_const FROM Table_6_Half_life_adn_decay_const WHERE id={0}".format(i))
+		dictNucl["l"] = cursor.fetchall()[0][0]
+		cursor.execute("SELECT nuclide FROM Table_24_Conversion_fraction_total_eff_dose_ground_scenario WHERE id={0}".format(i))
+		nuclide = cursor.fetchall()[0][0]
+		
+		print 
+		print nuclide
+		print 
+		print calcEgrd(604800)
+		print
+		print calcEgrd(31536000)
+		print "--------------------------------------------"
+	#Закрываем соединение с базой данных
+	conn.close()
+	#x = range(0,31536000, 6000)
+	#y = [calcEgrd(time) for time in x]
+	#createGraph(x, y, "FromDayToYearLog", True)
+	#createGraph(x, y, "FromDayToYear", False)
 	return
 	
 if __name__=="__main__":
