@@ -30,23 +30,23 @@ rcParams['font.fantasy'] = 'Arial'
 def integrand(x, a, b):
 	return a*x**2 + b
 	
-	
-dictNucl = {    "e_plane_srf_ad": 3.8e-16,
-		"l"       : 1.0e-06,
-		"e_air_sh_ad" : 1.8e-14,
-		"e_inh_ad" : 7.4e-09,
-		"e_ing_inf" : 1.8e-07,
+"""
+dictNuclide = { "e_plane_srf_ad": 3.8e-16,
+		"l"             : 1.0e-06,
+		"e_air_sh_ad"   : 1.8e-14,
+		"e_inh_ad"      : 7.4e-09,
+		"e_ing_inf"     : 1.8e-07,
 		}	
-
-def intWeat(t):
-	l = dictNucl["l"]
+"""
+def intWeat(t, dictNuclide):
+	l = dictNuclide["l"]
 	b1 = 3.59e-08
 	b2 = 2.37e-10
 	Wg = 0.63*exp(-b1*t)+0.37*exp(-b2*t)
 	return Wg*exp(-l*t)
 	
-def intTgr_air(t):
-	l = dictNucl["l"]
+def intTgr_air(t, dictNuclide):
+	l = dictNuclide["l"]
 	T =  1e-05
 	t0 = 86400
 	if 0<=t<=t0:
@@ -56,8 +56,8 @@ def intTgr_air(t):
 		Tgr_air = T*t0/t+1e-09
 	return Tgr_air*exp(-l*t)
 	
-def intTgr_gi(t):
-	l = dictNucl["l"]
+def intTgr_gi(t, dictNuclide):
+	l = dictNuclide["l"]
 	Qsoil = 1.2e-09
 	pdep = 1600.0
 	d_ind = 0.001
@@ -73,62 +73,63 @@ def intTgr_gi(t):
 	return Tgr_air*exp(-l*t)
 	
 
-def calcWI(t):
+def calcWI(dictNuclide, t):
 	#I = quad(integrand, 0, 1, args=(a,b))
-	l = dictNucl["l"]
-	I = quad(intWeat, 0, t)
+	l = dictNuclide["l"]
+	I = quad(intWeat, 0, t, args = (dictNuclide))
 	return I[0]
 
-def calcTI(t):
-	l = dictNucl["l"]
-	TI = quad(intTgr_air, 0, t)
+def calcTI(dictNuclide, t):
+	l = dictNuclide["l"]
+	TI = quad(intTgr_air, 0, t, args = (dictNuclide))
 	return TI[0]
 
-def calcTI2(t):
-	l = dictNucl["l"]
-	TI = quad(intTgr_gi, 0, t)
+def calcTI2(dictNuclide, t):
+	l = dictNuclide["l"]
+	TI = quad(intTgr_gi, 0, t, args = (dictNuclide))
 	return TI[0]
 
-def calc_e_gr_sh(t):
+def calc_e_gr_sh(dictNuclide, t):
 	CorFgrd = 0.7
 	SFe = 1.4
-	WI = calcWI(t)
+	WI = calcWI(dictNuclide, t)
 	#print "WI", WI
 	Fsf = 0.4
 	Fof = 0.6
-	e_gr_sh = dictNucl["e_plane_srf_ad"]*CorFgrd*SFe*WI*(Fsf*Fof+(1-Fof))
+	e_gr_sh = dictNuclide["e_plane_srf_ad"]*CorFgrd*SFe*WI*(Fsf*Fof+(1-Fof))
 	return e_gr_sh
 	
 	
-def calc_e_air_sh(t):
-	e_air_sh_ad = dictNucl["e_air_sh_ad"]
-	TI = calcTI(t)
+def calc_e_air_sh(dictNuclide, t):
+	e_air_sh_ad = dictNuclide["e_air_sh_ad"]
+	TI = calcTI(dictNuclide, t)
 	#print "TI", TI
 	SFe = 1.4
 	e_air_sh = e_air_sh_ad*TI*SFe
 	return e_air_sh
 	
-def calc_e_inh_res(t):
-	e_inh_ad = dictNucl["e_inh_ad"]
-	TI = calcTI(t)
+def calc_e_inh_res(dictNuclide, t):
+	e_inh_ad = dictNuclide["e_inh_ad"]
+	TI = calcTI(dictNuclide, t)
 	#print "TI", TI
 	Frf = 1
 	Qair = 3.3e-04
 	e_inh_res = e_inh_ad*TI*Frf*Qair
 	return e_inh_res
 
-def calc_e_ind_ing(t):
-	TI_inf = calcTI2(t)
+def calc_e_ind_ing(dictNuclide, t):
+	TI_inf = calcTI2(dictNuclide, t)
 	#print "TI_inf", TI_inf
-	e_ing_in = dictNucl["e_ing_inf"]
+	e_ing_in = dictNuclide["e_ing_inf"]
 	e_ind_ing = e_ing_in*TI_inf
 	return e_ind_ing
 
 	
-def calcEgrd(t):
-	Egr = calc_e_gr_sh(t)+calc_e_air_sh(t)+calc_e_inh_res(t)+calc_e_ind_ing(t)
+def calcEgrd(dictNuclide, t):
+	Egr = calc_e_gr_sh(dictNuclide, t)+calc_e_air_sh(dictNuclide, t)+calc_e_inh_res(dictNuclide, t)+calc_e_ind_ing(dictNuclide, t)
 	#print "time", t
 	return Egr
+
 
 def createGraph(x, y, name, log):
 	fig = plt.figure()
@@ -143,38 +144,33 @@ def createGraph(x, y, name, log):
 	
 
 def main():
-	global dictNucl
-	print "old I"
-	print 
-	print calcEgrd(604800)
-	print
-	print calcEgrd(31536000)
+	dictNuclide = {}
 	print "--------------------------------------------"
 	#Устанавливаем соединение с базой данных
 	conn = sqlite3.connect('./db/new_db.sqlite')
 	
 	# Создаем курсор - это специальный объект который делает запросы и получает их результаты
 	cursor = conn.cursor()
+		
 	for i in range(1,6):
 		cursor.execute("SELECT e_plane_srf_ad FROM Table_24_Conversion_fraction_total_eff_dose_ground_scenario WHERE id={0}".format(i))
-		dictNucl["e_plane_srf_ad"] = cursor.fetchall()[0][0]
+		dictNuclide.update({"e_plane_srf_ad" : cursor.fetchall()[0][0]})
 		cursor.execute("SELECT e_air_sh_ad FROM Table_24_Conversion_fraction_total_eff_dose_ground_scenario WHERE id={0}".format(i))
-		dictNucl["e_air_sh_ad"] = cursor.fetchall()[0][0]
+		dictNuclide.update({"e_air_sh_ad" : cursor.fetchall()[0][0]})
 		cursor.execute("SELECT e_inh_ad FROM Table_24_Conversion_fraction_total_eff_dose_ground_scenario WHERE id={0}".format(i))
-		dictNucl["e_inh_ad"] = cursor.fetchall()[0][0]
+		dictNuclide.update({"e_inh_ad" : cursor.fetchall()[0][0]})
 		cursor.execute("SELECT e_ing_inf FROM Table_24_Conversion_fraction_total_eff_dose_ground_scenario WHERE id={0}".format(i))
-		dictNucl["e_ing_inf"] = cursor.fetchall()[0][0]
+		dictNuclide.update({"e_ing_inf" : cursor.fetchall()[0][0]})
 		cursor.execute("SELECT Decay_const FROM Table_6_Half_life_adn_decay_const WHERE id={0}".format(i))
-		dictNucl["l"] = cursor.fetchall()[0][0]
+		dictNuclide.update({"l" : cursor.fetchall()[0][0]})
 		cursor.execute("SELECT nuclide FROM Table_24_Conversion_fraction_total_eff_dose_ground_scenario WHERE id={0}".format(i))
 		nuclide = cursor.fetchall()[0][0]
-		
 		print 
 		print nuclide
 		print 
-		print calcEgrd(604800)
+		print calcEgrd(dictNuclide, 604800)
 		print
-		print calcEgrd(31536000)
+		print calcEgrd(dictNuclide, 31536000)
 		print "--------------------------------------------"
 	#Закрываем соединение с базой данных
 	conn.close()
