@@ -86,7 +86,7 @@ def calcWI(dictNuclide, t):
 """
 def calcWI(dictNuclide, t):
 	#I = quad(integrand, 0, 1, args=(a,b))
-	l = 1.5876780E-07 #лямбда нужно заменить все лямбда в базе данных
+	l = dictNuclide["l"]
 	b1 = 3.59e-08
 	b2 = 2.37e-10
 	#print "lambda", l, 1.5876780E-07
@@ -114,7 +114,6 @@ def calc_e_gr_sh(dictNuclide, t):
 	Fsf = 0.4
 	Fof = 0.6
 	#print "\ndictNuclide['e_plane_srf_ad']", dictNuclide["e_plane_srf_ad"]
-	dictNuclide["e_plane_srf_ad"] = 2.27e-18 #Заменить все e_plane_srf_ad
 	#print "\ndictNuclide['e_plane_srf_ad']", dictNuclide["e_plane_srf_ad"]
 
 	e_gr_sh = dictNuclide["e_plane_srf_ad"]*CorFgrd*SFe*WI*(Fsf*Fof+(1-Fof))
@@ -123,8 +122,7 @@ def calc_e_gr_sh(dictNuclide, t):
 	
 	
 def calc_e_air_sh(dictNuclide, t):
-	#e_air_sh_ad = dictNuclide["e_air_sh_ad"]
-	e_air_sh_ad = 0.0000000000000000773
+	e_air_sh_ad = dictNuclide["e_air_sh_ad"]
 	#TI = calcTI(dictNuclide, t)
 	#print "TI", TI
 	if t<604899:
@@ -145,7 +143,7 @@ def calc_e_inh_res(dictNuclide, t):
 		TI = 4.08164341687635
 	#print "TI", TI
 	Frf = 1
-	Qair = 3.333333333e-04
+	Qair = 3.333333333333e-04
 	e_inh_res = e_inh_ad*TI*Frf*Qair
 	return e_inh_res
 
@@ -194,7 +192,7 @@ def main():
 	# Создаем курсор - это специальный объект который делает запросы и получает их результаты
 	cursor = conn.cursor()
 		
-	for i in range(1,2):
+	for i in range(1,6):
 		cursor.execute("SELECT e_plane_srf_ad FROM Table_24_Conversion_fraction_total_eff_dose_ground_scenario WHERE id={0}".format(i))
 		dictNuclide.update({"e_plane_srf_ad" : cursor.fetchall()[0][0]})
 		cursor.execute("SELECT e_air_sh_ad FROM Table_24_Conversion_fraction_total_eff_dose_ground_scenario WHERE id={0}".format(i))
@@ -205,7 +203,6 @@ def main():
 		dictNuclide.update({"e_ing_inf" : cursor.fetchall()[0][0]})
 		cursor.execute("SELECT Decay_const FROM Table_6_Half_life_adn_decay_const WHERE id={0}".format(i))
 		dictNuclide.update({"l" : cursor.fetchall()[0][0]})
-		dictNuclide["l"] = 1.5876780E-07
 		cursor.execute("SELECT nuclide FROM Table_24_Conversion_fraction_total_eff_dose_ground_scenario WHERE id={0}".format(i))
 		nuclide = cursor.fetchall()[0][0]
 		print 
