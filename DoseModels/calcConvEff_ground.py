@@ -123,24 +123,22 @@ def calc_e_gr_sh(dictNuclide, t):
 	
 def calc_e_air_sh(dictNuclide, t):
 	e_air_sh_ad = dictNuclide["e_air_sh_ad"]
-	#TI = calcTI(dictNuclide, t)
+	l = dictNuclide["l"]
+	T = 1e-05
+	
 	#print "TI", TI
-	if t<604899:
-		TI = 2.47061716777676
+	if t<86400:
+		TI = T*(1-exp(-l*t))/(l)
+		print "TI", TI
 	else:
-		TI = 4.08164341687635
+		TI = calcTI(dictNuclide, t)
 	SFe = 1.4
 	e_air_sh = e_air_sh_ad*TI*SFe
 	return e_air_sh
 	
 def calc_e_inh_res(dictNuclide, t):
-	#e_inh_ad = dictNuclide["e_inh_ad"]
-	e_inh_ad = 7.9e-09
-	#TI = calcTI(dictNuclide, t)
-	if t<604899:
-		TI = 2.47061716777676
-	else:
-		TI = 4.08164341687635
+	e_inh_ad = dictNuclide["e_inh_ad"]
+	TI = calcTI(dictNuclide, t)
 	#print "TI", TI
 	Frf = 1
 	Qair = 3.333333333333e-04
@@ -148,12 +146,8 @@ def calc_e_inh_res(dictNuclide, t):
 	return e_inh_res
 
 def calc_e_ind_ing(dictNuclide, t):
-	#TI_inf = calcTI2(dictNuclide, t)
-	TI_inf = 0
-	if t<604899:
-		TI_inf = 0.000178683905355862
-	else:
-		TI_inf = 0.000294811405355862
+	TI_inf = calcTI2(dictNuclide, t)
+	
 	#print "TI_inf", TI_inf
 	#e_ing_in = dictNuclide["e_ing_inf"]
 	e_ing_in = 1.8e-08
