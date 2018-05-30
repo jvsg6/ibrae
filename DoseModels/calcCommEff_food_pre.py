@@ -26,49 +26,6 @@ rcParams['font.family'] = 'fantasy'
 rcParams['font.fantasy'] = 'Arial'
 
 
-	
-	
-dictI131 = {    "e_pl_srf": 3.8e-16,
-		"l"       : 1.0e-06,
-		"e_air_sh_ad" : 1.8e-14,
-		"e_inh_ad" : 7.4e-09,
-		"e_ing_inf" : 1.8e-07,
-		"e_ing_ad"  : 2.2e-08,
-		"del_eff_OLI_3": 6.4e+05,
-		"F_cons"    : 9.2e-01,
-		"T_feed_cow_milk" : 4.7e+02,
-		}	
-dictCs134 = {    "e_pl_srf": 1.5e-15,
-		"l"       : 1.0e-06,
-		"e_air_sh_ad" : 1.8e-14,
-		"e_inh_ad" : 7.4e-09,
-		"e_ing_inf" : 1.6e-08,
-		"e_ing_ad"  : 1.9e-08,
-		"del_eff_OLI_3": 1.7e+06,
-		"F_cons"    : 1.0e+00,
-		"T_feed_cow_milk" : 4.0e+02,
-		}	
-dictCs136 = {    "e_pl_srf": 1.5e-15,
-		"l"       : 1.0e-06,
-		"e_air_sh_ad" : 1.8e-14,
-		"e_inh_ad" : 7.4e-09,
-		"e_ing_inf" : 9.5e-09,
-		"e_ing_ad"  : 3.0e-09,
-		"del_eff_OLI_3": 8.5e+05,
-		"F_cons"    : 9.5e-01,
-		"T_feed_cow_milk" : 4.0e+02,
-		}
-dictCs137 = {    "e_pl_srf": 1.5e-15,
-		"l"       : 1.0e-06,
-		"e_air_sh_ad" : 1.8e-14,
-		"e_inh_ad" : 7.4e-09,
-		"e_ing_inf" : 1.2e-08,
-		"e_ing_ad"  : 1.3e-08,
-		"del_eff_OLI_3": 1.7e+06,
-		"F_cons"    : 1.0e+00,
-		"T_feed_cow_milk" : 4.0e+02,
-		}
-
 def calc_e_ing_pre(dictNucl):
 	f1 = 3.0 #
 	Fmilk = 0.5 #
@@ -108,27 +65,8 @@ def createGraph(x, y, name, log):
 	return
 
 
-dictI131 = {    "e_pl_srf": 3.8e-16,
-		"l"       : 1.0e-06,
-		"e_air_sh_ad" : 1.8e-14,
-		"e_inh_ad" : 7.4e-09,
-		"e_ing_inf" : 1.8e-07,
-		"e_ing_ad"  : 2.2e-08,
-		"del_eff_OLI_3": 6.4e+05,
-		"F_cons"    : 9.2e-01,
-		"T_feed_cow_milk" : 4.7e+02, #
-		}	
-
 def main():
-	print 
-	print calc_e_ing_pre(dictI131)
-	print
-	print calc_e_ing_pre(dictCs134)
-	print
-	print calc_e_ing_pre(dictCs136)
-	print
-	print calc_e_ing_pre(dictCs137)
-	
+
 	dictNuclide = {}
 	print "--------------------------------------------"
 	#Устанавливаем соединение с базой данных
