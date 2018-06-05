@@ -1,0 +1,9 @@
+﻿EPR_NPP_OILS page 57
+Table 23 provides the dose conversion factors for the total effective dose to the representative person
+and the total equivalent dose to the fetus for the ‘ground’ scenario (needed in the calculation of
+OIL1 γ and OIL2 γ ), over an exposure period ∆ of 7 days and 1 year. 41 These dose conversion factors
+are determined as described in Sections 3.6.1.1 and 3.6.1.2.
+3.6.1.1. Total effective dose to the representative person for the ‘ground’ scenario
+Table 23 provides E grd-scenario,i (∆) [Sv/(Bq/m 2 )], which is the total effective dose to the representative
+person over an exposure period ∆ 41 for the ‘ground’ scenario, per unit ground surface activity of
+radionuclide i. It is determined by Eq. (22):
