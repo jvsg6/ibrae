@@ -6,26 +6,26 @@ import matplotlib.pyplot as plt
 from matplotlib import rcParams
     
     
-def save(name='', fmt='png'):
+def save(name, fmt, mypath):
 	pwd = os.getcwd()
-	iPath = './pictures/{}'.format(fmt)
+	iPath = '{0}/pictures/{1}'.format(mypath, fmt)
 	try:
 		os.makedirs(iPath)
-	except WindowsError as err:
+	except:
 		print "Folder exist"
 	os.chdir(iPath)
 	plt.savefig('{}.{}'.format(name, fmt), fmt='png')
 	os.chdir(pwd)
     #plt.close()
     
-def createGraph(x, y, name, log):
+def createGraph(x, y, name, log, mypath):
 	fig = plt.figure()
 	ax = fig.add_subplot(111)
 	plt.plot(x, y)
 	plt.grid(True)
 	if log:
 		ax.set_xscale('log')
-	save(name)
+	save(name,"png",  mypath)
 	plt.close(fig)
 	return
 	
